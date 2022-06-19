@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "186530101085",
+    "project_id": "netchef-eea83",
+    "storage_bucket": "netchef-eea83.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186530101085:android:f3cdde8f097c75928e9ab4",
+        "android_client_info": {
+          "package_name": "com.example.netchef"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "186530101085-f0it7lpepgge68vn21h7gt1bfevl6psf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCd_COva6z1KmDrja2Dhs372ZY6XOdrhlo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "186530101085-f0it7lpepgge68vn21h7gt1bfevl6psf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

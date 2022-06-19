@@ -1,6 +1,11 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:netchef/home_screen.dart';
 import 'package:netchef/login_screen.dart';
+import 'package:netchef/model/model_user.dart';
 import 'package:netchef/splash_screen.dart';
 
 class SignupScreen extends StatefulWidget{
@@ -9,6 +14,7 @@ class SignupScreen extends StatefulWidget{
 }
 
 class InitState extends State<SignupScreen>{
+  final _auth = FirebaseAuth.instance;
   final _formkey=GlobalKey<FormState>();
   final TextEditingController emailController= new TextEditingController();
   final TextEditingController nameController= new TextEditingController();
@@ -94,6 +100,16 @@ class InitState extends State<SignupScreen>{
                 autofocus: false,
                 controller: nameController,
                 keyboardType: TextInputType.name,
+                validator: (value){
+                  if(value!.isEmpty){
+                    Fluttertoast.showToast(msg: "Name field is empty");
+                    return ("kindly provide Name");
+                  }
+                  // if(value==RegExp("'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9]+.[a-z]'").hasMatch(value)){
+                  //   return ("please enter a valid email");
+                  // }
+                  return null;
+                },
                 onSaved: (value){
                  nameController.text = value!;
                 },
@@ -130,6 +146,17 @@ class InitState extends State<SignupScreen>{
                 autofocus: false,
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
+                  validator: (value){
+
+                  if(value!.isEmpty){
+                Fluttertoast.showToast(msg: "email is empty");
+                    return ("kindly provide email");
+            }
+                if(value==RegExp("'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9]+.[a-z]'").hasMatch(value)){
+    return ("please enter a valid email");
+    }
+        return null;
+                  },
                 onSaved: (value){
              emailController.text = value!;
                 },
@@ -166,6 +193,16 @@ class InitState extends State<SignupScreen>{
                 autofocus: false,
                 controller: phoneController,
                 keyboardType: TextInputType.number,
+                validator: (value){
+                  if(value!.isEmpty){
+                    Fluttertoast.showToast(msg: "phoneNumber field is empty");
+                    return ("kindly provide phoneNumber");
+                  }
+                  // if(value==RegExp("'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9]+.[a-z]'").hasMatch(value)){
+                  //   return ("please enter a valid email");
+                  // }
+                  return null;
+                },
                 onSaved: (value){
                   value= phoneController.text;
                 },
@@ -201,6 +238,16 @@ class InitState extends State<SignupScreen>{
                 autofocus: false,
                 controller: passwordController,
                 obscureText: true,
+                validator: (value){
+                  if(value!.isEmpty){
+                    Fluttertoast.showToast(msg: "password field is empty");
+                    return ("kindly provide password");
+                  }
+                  // if(value==RegExp("'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9]+.[a-z]'").hasMatch(value)){
+                  //   return ("please enter a valid email");
+                  // }
+                  return null;
+                },
                 onSaved: (value){
                    passwordController.text = value!;
                 },
@@ -235,6 +282,13 @@ class InitState extends State<SignupScreen>{
                 autofocus: false,
                 controller: confirmpasswordController,
                 obscureText: true,
+                validator: (value){
+                 if(confirmpasswordController.text.length > passwordController.text.length && passwordController.text !=value){
+                   return "Password do not match";
+
+    }
+                  return null;
+                },
                 onSaved: (value){
                    confirmpasswordController.text= value!;
                 },
@@ -254,7 +308,7 @@ class InitState extends State<SignupScreen>{
             ),
             GestureDetector(
               onTap: ()=>{
-                /*write your onclick here   */
+                signup(emailController.text, passwordController.text)
               },
               child: Container(
                 margin: EdgeInsets.only(left: 20,right: 20,top: 70) ,
@@ -319,6 +373,40 @@ class InitState extends State<SignupScreen>{
       ),
     ),
   );
+
+  }
+  void signup(String email, String password) async{
+    if(_formkey.currentState!.validate()){
+      _auth.createUserWithEmailAndPassword(email: email, password: password).
+    then((value) => { postDetails()
+      }).catchError((e){
+        Fluttertoast.showToast(msg: e!.message);
+      });
+
+
+    }
+
+
+
+  }
+  postDetails()async {
+    FirebaseFirestore firebaseFirestore =FirebaseFirestore.instance;
+    User? user= _auth.currentUser;
+    UserModel userModel =  UserModel();
+    userModel.email = user!.email;
+    userModel.uid= user!.uid;
+    userModel.firstName= nameController.text;
+    userModel.phonenumber=phoneController.text;
+
+
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(user.uid)
+        .set(userModel.toMap());
+    Fluttertoast.showToast(msg: "Account created");
+    
+    Navigator.pushAndRemoveUntil((context), MaterialPageRoute(builder: (context)=> HomeScreen() ), (route) => false);
 
   }
 

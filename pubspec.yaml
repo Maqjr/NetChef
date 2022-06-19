@@ -36,6 +36,11 @@ dependencies:
   cupertino_icons: ^1.0.2
   animated_splash_screen: ^1.2.0
   google_fonts: ^3.0.1
+  firebase_core: ^1.17.1
+  firebase_auth: ^3.3.19
+  cloud_firestore: ^3.1.17
+  fluttertoast: ^8.0.9
+  smooth_page_indicator: ^1.0.0+2
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +67,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
   - images/netcheflogo.png
+  - images/res_logo.png
+  - images/ingre1.png
+  - images/ingre2.png
+  - images/ingre3.png
+  - images/ingre4.png
 
 
 

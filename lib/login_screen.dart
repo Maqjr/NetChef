@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:netchef/home_screen.dart';
 
 
@@ -16,6 +18,7 @@ class InitState extends State<LoginScreen>{
    final _formkey= GlobalKey<FormState>();
    final TextEditingController emailController= new TextEditingController();
    final TextEditingController passwordController= new TextEditingController();
+   final _auth= FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return InitWidget();
@@ -89,6 +92,16 @@ class InitState extends State<LoginScreen>{
                   autofocus: false,
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
+                  validator: (value){
+                    if(value!.isEmpty){
+                      Fluttertoast.showToast(msg: "email is empty");
+                        return ("kindly provide email");
+                    }
+                    if(value==RegExp("'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9]+.[a-z]'").hasMatch(value)){
+                      return ("please enter a valid email");
+                    }
+                    return null;
+                  },
                   onSaved: (value){
                     emailController.text=value!;
                   },
@@ -123,6 +136,12 @@ class InitState extends State<LoginScreen>{
                 child: TextFormField(
                   autofocus: false,
                   controller: passwordController,
+                  validator: (value){
+                    if(value!.isEmpty){
+                      Fluttertoast.showToast(msg: "pass empty");
+                      print("Kindly provide password");
+                    }
+                  },
                   onSaved: (value){
                     passwordController.text=value!;
                   },
@@ -154,7 +173,11 @@ class InitState extends State<LoginScreen>{
               ),
               GestureDetector(
                 onTap: ()=>{
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()))
+
+                  signIn(emailController.text, passwordController.text)
+
+
+                  // Navigator.push(context, MaterialPageRoute(builder: (context)=> HomeScreen()))
                 },
                 child: Container(
                   margin: EdgeInsets.only(left: 20,right: 20,top: 70) ,
@@ -185,6 +208,43 @@ class InitState extends State<LoginScreen>{
                   ),
                 ),
               ),
+              // TextButton(
+              //   onPressed: () async{
+              //     User? user= await Loginemail(email: emailController.text, password: passwordController.text,context: context);
+              //     print(user);
+              //     if(user!=null){
+              //       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> HomeScreen()));
+              //     }
+              //   },
+              //
+              //   child: Container(
+              //   margin: EdgeInsets.only(left: 20,right: 20,top: 70) ,
+              //   padding:  EdgeInsets.only(left: 20,right: 20),
+              //   alignment: Alignment.center,
+              //   height: 54,
+              //   decoration: BoxDecoration(
+              //     gradient: LinearGradient(
+              //         colors: [(new Color(0xffF5591F)), (new Color(0xffF2861E))],
+              //         begin: Alignment.centerLeft,
+              //         end:  Alignment.centerRight
+              //     ),
+              //     borderRadius: BorderRadius.circular(50),
+              //     boxShadow: [BoxShadow(
+              //       offset: Offset(0, 10),
+              //       blurRadius: 50,
+              //       color: Color(0xffEEEEEE),
+              //
+              //     )],
+              //
+              //   ),
+              //   child: Text(
+              //     "LogIn",
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //
+              //     ),
+              //   ),
+              // ),),
               Container(
                 margin: EdgeInsets.only(top: 10),
 
@@ -223,5 +283,40 @@ class InitState extends State<LoginScreen>{
 
 
   }
+  void signIn(String email, String password) async {
+   if(_formkey.currentState!.validate()){
+
+     await _auth.signInWithEmailAndPassword(email: email, password: password).
+    then((uid) => {
+      Fluttertoast.showToast(msg: "Login Successful"),
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> HomeScreen()))
+     }).catchError((e){
+        Fluttertoast.showToast(msg: e!.message);
+
+     });
+
+   }
+
+  }
+
+  Future <User?> Loginemail({
+  required String email,
+    required String password,
+    required BuildContext context,
+}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user;
+    try{
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(email: email, password: password);
+      user=userCredential.user;
+
+    } on FirebaseAuthException catch (e){
+      if(e.code == "user-not-found"){
+        print("no user found");
+      }
+    }
+    return user;
+  }
 
 }
+
